@@ -7,8 +7,9 @@
 对于一个一元函数f(x)，如果在某点x附近有微小的变化 ![](http://latex.codecogs.com/svg.latex?\nabla x)，
 
 ## 2. Momentum动量法
-
-梯度下降
-
+## 3. Adagrad法
+## 4. Adadelta法
+## 5. RMSprop法
+## 6. Adam法
 
 
