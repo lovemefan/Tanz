@@ -79,8 +79,8 @@ class Optimizer():
             if np.max(np.abs(df(x))) < epsilon:
                 break
             else:
-                gl += df(x)**2
-                v = alpha * df(x)/(np.sqrt(gl) + epsilon)
+                gl += df(x) ** 2
+                v = alpha * df(x) / (np.sqrt(gl) + epsilon)
                 x = x - v
                 history.append(x)
 
@@ -98,7 +98,7 @@ class Optimizer():
         """
         assert epsilon > 0, "epsilon must be positive "
         assert alpha > 0, "alpha must be positive "
-        assert rho > 0, "rho must be positive "
+        assert 0 < rho < 1, "rho must between 0 and 1 "
         assert iterations > 0 and type(iterations) == int, "iterations must be positive integer"
 
         history = [x]
@@ -111,13 +111,40 @@ class Optimizer():
             else:
                 grad = df(x)
                 eg = rho * eg + (1 - rho) * grad ** 2
-                delta = np.sqrt((Edelta + epsilon)/(eg + epsilon)) * grad
+                delta = np.sqrt((Edelta + epsilon) / (eg + epsilon)) * grad
                 Edelta = rho * Edelta + (1 - rho) * delta ** 2
                 x = x - alpha * delta
                 history.append(x)
         return history
 
+    def gradient_descent_RMSprop(self, df, x, alpha=0.1, beta=0.9, iterations=100, epsilon=1e-8):
+        """
+        :param df: 导数函数
+        :param x: 输入
+        :param alpha: 学习率
+        :param beta: 超参
+        :param iterations: 迭代次数
+        :param epsilon: epsilon > 0, 梯度下降的停止条件
+        :return: list: list of x
+        """
+        assert epsilon > 0, "epsilon must be positive "
+        assert alpha > 0, "alpha must be positive "
+        assert 0 < beta < 1, "beta must between 0 and 1  "
+        assert iterations > 0 and type(iterations) == int, "iterations must be positive integer"
 
+        history = [x]
+        v = np.zeros_like(x)
+
+        for i in range(iterations):
+            if np.max(np.abs(df(x))) < epsilon:
+                break
+            else:
+                grad = df(x)
+                v = beta * v +(1 - beta) * grad ** 2
+                x = x - alpha * grad / (np.sqrt(v) + epsilon)
+
+                history.append(x)
+        return history
 
 
 
@@ -128,5 +155,7 @@ if __name__ == '__main__':
     result = optimizer.gradient_descent_adagrad(df, np.array([1.0, 2]), 0.01, 200, 1e-8)
     print(np.max(result))
     result = optimizer.gradient_descent_Adadelta(df, np.array([1.0, 2]), 0.01, 0.9, 200, 1e-8)
+    print(np.max(result))
+    result = optimizer.gradient_descent_RMSprop(df, np.array([1.0, 2]), 0.01, 0.9, 200, 1e-8)
     print(np.max(result))
     pass
