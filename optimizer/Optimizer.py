@@ -87,11 +87,38 @@ class Optimizer():
         return history
 
     def gradient_descent_Adadelta(self, df, x, alpha=0.1, rho=0.9, iterations=100, epsilon=1e-8):
-
+        """Adagrad 自适应梯度，
+        :param df: 导数函数
+        :param x: 输入
+        :param alpha: 学习率
+        :param rho: 平滑参数
+        :param iterations: 迭代次数
+        :param epsilon:
+        :return: epsilon > 0, 梯度下降的停止条件
+        """
         assert epsilon > 0, "epsilon must be positive "
         assert alpha > 0, "alpha must be positive "
         assert rho > 0, "rho must be positive "
         assert iterations > 0 and type(iterations) == int, "iterations must be positive integer"
+
+        history = [x]
+        eg = np.zeros_like(x)
+        Edelta = np.zeros_like(x)
+
+        for i in range(iterations):
+            if np.max(np.abs(df(x))) < epsilon:
+                break
+            else:
+                grad = df(x)
+                eg = rho * eg + (1 - rho) * grad ** 2
+                delta = np.sqrt((Edelta + epsilon)/(eg + epsilon)) * grad
+                Edelta = rho * Edelta + (1 - rho) * delta ** 2
+                x = x - alpha * delta
+                history.append(x)
+        return history
+
+
+
 
 
 
@@ -99,3 +126,7 @@ if __name__ == '__main__':
     optimizer = Optimizer()
     df = lambda x: np.power(3 * x, 2) - 6 - 10
     result = optimizer.gradient_descent_adagrad(df, np.array([1.0, 2]), 0.01, 200, 1e-8)
+    print(np.max(result))
+    result = optimizer.gradient_descent_Adadelta(df, np.array([1.0, 2]), 0.01, 0.9, 200, 1e-8)
+    print(np.max(result))
+    pass
