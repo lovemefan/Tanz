@@ -158,4 +158,4 @@ if __name__ == '__main__':
     print(np.max(result))
     result = optimizer.gradient_descent_RMSprop(df, np.array([1.0, 2]), 0.01, 0.9, 200, 1e-8)
     print(np.max(result))
-    pass
+
