@@ -146,16 +146,36 @@ class Optimizer():
                 history.append(x)
         return history
 
+    def gradient_descent_Adam(self, df, x, alpha=0.1, beta_1=0.9, beta_2=0.99, iterations=100, epsilon=1e-8):
+        """
+        :param df: 导数函数
+        :param x: 输入
+        :param alpha: 学习率
+        :param beta: 超参
+        :param iterations: 迭代次数
+        :param epsilon: epsilon > 0, 梯度下降的停止条件
+        :return: list: list of x
+        """
+        assert epsilon > 0, "epsilon must be positive "
+        assert alpha > 0, "alpha must be positive "
+        assert 0 < beta_1 < 1, "beta1 must between 0 and 1  "
+        assert 0 < beta_2 < 1, "beta2 must between 0 and 1  "
+        assert iterations > 0 and type(iterations) == int, "iterations must be positive integer"
 
+        history = []
+        m = np.zeros_like(x)
+        v = np.zeros_like(x)
 
+        for i in range(iterations):
+            if np.max(np.abs(df(x))) < epsilon:
+                break
+            else:
+                grad = df(x)
+                m = beta_1 * m + (1 - beta_1) * grad
+                v = beta_2 * v + (1 - beta_2) * grad ** 2
+                m_t = m / (1 - beta_1)
+                v_t = v / (1 - beta_2)
 
-if __name__ == '__main__':
-    optimizer = Optimizer()
-    df = lambda x: np.power(3 * x, 2) - 6 - 10
-    result = optimizer.gradient_descent_adagrad(df, np.array([1.0, 2]), 0.01, 200, 1e-8)
-    print(np.max(result))
-    result = optimizer.gradient_descent_Adadelta(df, np.array([1.0, 2]), 0.01, 0.9, 200, 1e-8)
-    print(np.max(result))
-    result = optimizer.gradient_descent_RMSprop(df, np.array([1.0, 2]), 0.01, 0.9, 200, 1e-8)
-    print(np.max(result))
-
+                x = x - alpha * m_t / (np.sqrt(v_t) + epsilon)
+                history.append(x)
+        return history
